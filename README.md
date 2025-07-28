@@ -1,62 +1,71 @@
-# VTF-18V: Vertebrae Detection and Cobb Angle Measurement
+# Accurate Cobb Angle Estimation via SVD-Based Curve Detection and Vertebral Wedging Quantification
 
-A deep learning framework for automatic vertebrae detection and comprehensive spinal analysis in X-ray images.
+A novel deep learning framework for automated assessment of Adolescent Idiopathic Scoliosis (AIS) using advanced computer vision techniques.
 
 ## Overview
 
-This project implements a neural network-based approach for:
-- **Vertebrae Detection**: Automatic identification and localization of vertebrae in X-ray images
-- **Cobb Angle Measurement**: Precise calculation of spinal curvature angles for scoliosis diagnosis
-- **VWI Analysis**: Vertebral Wedge Index calculation for detailed spinal deformity assessment
-- **Feature Discovery**: Automated discovery of optimal spinal metrics for clinical correlation
-- **Clinical Analysis**: Comprehensive spine analysis with medical-grade accuracy
+This project implements the research presented in "Accurate Cobb Angle Estimation via SVD-Based Curve Detection and Vertebral Wedging Quantification" published in IEEE Journal of Biomedical and Health Informatics. The framework provides:
 
-## Features
+- **Dual-Task Vertebral Morphology Preservation**: Simultaneous prediction of superior and inferior endplate angles with corresponding midpoint coordinates for each vertebra
+- **SVD-Based Principal Curve Detection**: Novel curve identification algorithm using Singular Value Decomposition to analyze angle predictions without predefined patterns
+- **Vertebral Wedging Index (VWI)**: New metric quantifying vertebral deformation that complements traditional Cobb angle measurements
+- **Biomechanically Informed Loss**: Incorporation of anatomical knowledge directly into model training
+- **Clinical-Grade Accuracy**: 83.33% diagnostic accuracy with robust generalization across different clinical centers
 
-- **Multiple Model Architectures**: Support for HRNet-18 and HRNet-32 backbones
-- **End-to-End Training**: Complete pipeline from data loading to model evaluation
-- **VWI Analysis Suite**: Comprehensive Vertebral Wedge Index calculation and analysis
-- **Automatic Feature Discovery**: AI-powered discovery of optimal spinal measurement combinations
-- **Global Metric Search**: Advanced search algorithms for finding best-performing clinical indicators
-- **Medical Visualization**: Specialized visualization tools for clinical assessment with curve detection
-- **Cross-Validation**: Built-in 5-fold cross-validation for robust evaluation
-- **Flexible Configuration**: Easy-to-use configuration system for different experimental setups
+## Key Features
+
+- **HRNet + Swin Transformer Architecture**: High-resolution feature extraction with global context enhancement
+- **Dual-Task Output Head**: Simultaneous prediction of endplate heatmaps and vector fields for improved accuracy
+- **SVD-Based Curve Detection**: Automatic identification of spinal curves without predefined patterns using Singular Value Decomposition
+- **Vertebral Wedging Index (VWI)**: Novel metric measuring vertebral deformation for enhanced clinical assessment
+- **Biomechanically Informed Loss**: Anatomical constraints integrated into the loss function for physiologically plausible predictions
+- **Multi-Center Validation**: Tested across multiple clinical centers with 630 full-spine anteroposterior radiographs
+- **Superior Performance**: 83.33% diagnostic accuracy, 2.55° mean absolute error for Cobb angles
+- **Clinical Interpretability**: Complete workflow from landmark detection to diagnostic classification
 
 ## Project Structure
 
 ```
-VTF-18V-Clean/
+JBHI-Cleaned/
 ├── src/                    # Core source code
 │   ├── models/            # Neural network architectures
-│   │   ├── vltenet.py     # Main VLTENet model
-│   │   ├── hr.py          # HRNet backbone
-│   │   └── ...
+│   │   ├── hr.py          # HRNet backbone implementation
+│   │   ├── transformer.py # Swin Transformer modules
+│   │   ├── decoding.py    # Dual-task output head
+│   │   └── ...           # Other model architectures
 │   ├── analysis/          # VWI and spinal analysis modules
-│   │   ├── vwi_calculator.py      # Vertebral Wedge Index calculation
+│   │   ├── vwi_calculator.py      # Vertebral Wedging Index calculation
 │   │   ├── feature_discovery.py  # Automated feature discovery
 │   │   ├── global_search.py      # Global metric optimization
 │   │   └── gt_analysis.py        # Ground truth analysis and visualization
 │   ├── utils/             # Utility functions
-│   │   ├── transform.py   # Data transformations
+│   │   ├── transform.py   # Data transformations and augmentations
+│   │   ├── vis_hm.py      # Heatmap visualization utilities
 │   │   └── ...
-│   ├── train.py           # Training script
+│   ├── train.py           # Training script with biomechanically informed loss
 │   ├── test.py            # Testing and evaluation
 │   ├── dataset.py         # Data loading and preprocessing
-│   ├── loss.py            # Loss functions
-│   └── visualize.py       # Visualization tools
+│   ├── loss.py            # Multi-component loss functions
+│   └── visualize.py       # Clinical visualization tools
 ├── configs/               # Configuration files
 ├── scripts/               # Training and testing scripts
+│   ├── train.sh          # Training script
+│   ├── test.sh           # Testing script
+│   └── analyze_vwi.py    # VWI analysis script
 ├── requirements/          # Environment and dependency files
 ├── pretrained/            # Pre-trained model weights
+├── results/               # Experimental results
 └── docs/                  # Documentation
+    ├── QUICKSTART.md     # Quick start guide
+    └── VWI_ANALYSIS.md   # VWI analysis documentation
 ```
 
 ## Installation
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
-cd VTF-18V-Clean
+git clone https://github.com/[username]/JBHI-Cleaned.git
+cd JBHI-Cleaned
 ```
 
 ### 2. Create Environment
@@ -179,11 +188,28 @@ results = evaluate_model(
 
 ## Model Architecture
 
-The VTF-18V model uses a sophisticated architecture combining:
-- **HRNet Backbone**: High-resolution representation learning
-- **Multi-Scale Feature Fusion**: Effective feature aggregation across scales
-- **Dual-Branch Decoding**: Separate pathways for heatmap and vector field prediction
-- **Attention Mechanisms**: Enhanced feature representation for medical imaging
+Our framework employs a sophisticated deep learning architecture that addresses key limitations of existing methods:
+
+### Core Components
+
+1. **HRNet Backbone**: High-resolution representation learning for multi-scale feature extraction at 1/4, 1/8, 1/16, and 1/32 resolutions
+2. **Swin Transformer Enhancement**: Hierarchical window-based attention to capture long-range dependencies while maintaining computational efficiency
+3. **Dual-Task Output Head**: Simultaneous prediction of:
+   - 18 upper and 18 lower endplate heatmaps for landmark localization
+   - 36-channel vector maps for direct angle regression
+4. **Biomechanically Informed Loss**: Three-component loss function:
+   - Heatmap loss (λ₁=1.0) for spatial localization
+   - Vector loss (λ₂=0.05) for angle prediction
+   - Constraint loss (λ₃=0.05) for anatomical consistency
+
+### SVD-Based Curve Detection Algorithm
+
+Our novel curve detection approach constructs an angle matrix Γ where:
+```
+Γ = θᵘᵖᵖᵉʳ1ᵀ - 1θᵀˡᵒʷᵉʳ
+```
+
+The matrix is decomposed using SVD to identify principal curvature patterns, enabling flexible detection of diverse scoliosis patterns without predefined constraints.
 
 ## VWI Analysis Framework
 
@@ -209,21 +235,32 @@ The Vertebral Wedge Index (VWI) analysis framework provides comprehensive spinal
 
 ## Performance
 
-### Model Performance
-| Metric | Value |
-|--------|-------|
-| Vertebrae Detection Rate | >95% |
-| Cobb Angle MAE | <3.5° |
-| Position Error (mm) | <2.0 |
-| Processing Time | <2s per image |
+### Clinical Assessment Metrics
+| Metric | Our Method | VLTENet | Seg4Reg |
+|--------|------------|---------|---------|
+| Max Cobb Angle MAE (°) | **2.55±0.20** | 2.89±0.23 | 3.24±0.24 |
+| Diagnostic Accuracy (%) | **83.45±3.33** | 78.65±3.73 | 76.12±3.82 |
+| Curve Detection Rate (%) | 97.84±0.90 | 98.72±0.73 | - |
+| False Detection Rate (%) | **6.69±1.57** | 15.89±1.98 | - |
 
-### VWI Analysis Performance
-| Analysis Type | Correlation with Cobb Angle | Processing Time |
-|---------------|----------------------------|-----------------|
-| Traditional VWI | 0.627 | <1s per case |
-| Optimized Feature Combination | 0.981 | <2s per case |
-| Global Search Results | 0.980+ | <5s per case |
-| Feature Discovery | Variable | 10-30s per dataset |
+### Disease Severity Classification
+| Severity | Precision (%) | Recall (%) | F1-Score (%) |
+|----------|---------------|------------|--------------|
+| **Severe** | 85.71 | 75.00 | 80.00 |
+| **Moderate** | 81.08 | 89.55 | 85.11 |
+| **Normal/Mild** | 86.67 | 76.47 | 81.25 |
+
+### Model Performance Metrics
+| Metric | HRNet-18 (Ours) | HRNet-32 | ResNet-50 |
+|--------|-----------------|----------|-----------|
+| Mean Position Error (px) | **4.74±0.80** | 4.76±1.05 | 5.74±2.10 |
+| Mean Angle Error (°) | **2.10±0.08** | 2.13±0.10 | 2.16±0.10 |
+| Parameters | 9.56M | 29.31M | 25.75M |
+
+### VWI Analysis Capabilities
+- **VWI Calculation**: Quantifies vertebral deformation within spinal curves
+- **Prognostic Value**: Complements Cobb angles for enhanced clinical assessment
+- **Multi-Pattern Detection**: Handles complex curve patterns including congenital scoliosis
 
 ## Configuration
 
@@ -265,11 +302,12 @@ We welcome contributions! Please:
 
 If you use this work in your research, please cite:
 ```bibtex
-@article{vtf18v2024,
-  title={VTF-18V: Deep Learning for Vertebrae Detection and Cobb Angle Measurement},
-  author={[Authors]},
-  journal={[Journal]},
-  year={2024}
+@article{shi2024accurate,
+  title={Accurate Cobb Angle Estimation via SVD-Based Curve Detection and Vertebral Wedging Quantification},
+  author={Shi, Chang and Meng, Nan and Zhuang, Yipeng and Zhao, Moxin and Huang, Hua and Chen, Xiuyuan and Nie, Cong and Zhong, Wenting and Jiang, Guiqiang and Wei, Yuxin and Yu, Jacob Hong Man and Chen, Si and Ou, Xiaowen and Cheung, Jason Pui Yin and Zhang, Teng},
+  journal={IEEE Journal of Biomedical and Health Informatics},
+  year={2024},
+  publisher={IEEE}
 }
 ```
 
@@ -279,12 +317,23 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Medical domain expertise provided by [Institution]
-- Dataset collection supported by [Funding Agency]
-- Computing resources provided by [Computing Center]
+- Medical domain expertise provided by Department of Orthopaedics and Traumatology, The University of Hong Kong
+- Dataset collection supported by Queen Mary Hospital and The Duchess of Kent Children's Hospital
+- Funding supported by National Natural Science Foundation of China Young Scientists Fund (Grant ID: 82402398, 82303957)
+- Computing resources provided by The University of Hong Kong
+
+## Dataset
+
+The JBHI-Cleaned dataset contains 630 full-spine anteroposterior radiographs from patients aged 10-18 years with Adolescent Idiopathic Scoliosis, collected from two tertiary medical centers in Hong Kong. Each radiograph includes:
+
+- **Dual-rater annotations**: All cases annotated by two experienced orthopedic surgeons
+- **18 vertebrae landmarks**: From C7 to L5 with 4 landmarks per vertebra
+- **Quality assurance**: Cases with disagreement >5° underwent consensus review
+- **Multi-center validation**: Ensures robust generalization across clinical settings
 
 ## Contact
 
 For questions and support:
-- Email: [contact@email.com]
-- Issues: [GitHub Issues](repository-url/issues)
+- Primary contact: Prof. Teng Zhang (tgzhang@hku.hk)
+- Issues: [GitHub Issues](https://github.com/[username]/JBHI-Cleaned/issues)
+- Institutional Review Board approval: UW15-596
