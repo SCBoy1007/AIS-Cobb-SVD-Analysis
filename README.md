@@ -298,18 +298,6 @@ We welcome contributions! Please:
 2. Create a feature branch
 3. Submit a pull request with detailed description
 
-## Citation
-
-If you use this work in your research, please cite:
-```bibtex
-@article{shi2024accurate,
-  title={Accurate Cobb Angle Estimation via SVD-Based Curve Detection and Vertebral Wedging Quantification},
-  author={Shi, Chang and Meng, Nan and Zhuang, Yipeng and Zhao, Moxin and Huang, Hua and Chen, Xiuyuan and Nie, Cong and Zhong, Wenting and Jiang, Guiqiang and Wei, Yuxin and Yu, Jacob Hong Man and Chen, Si and Ou, Xiaowen and Cheung, Jason Pui Yin and Zhang, Teng},
-  journal={IEEE Journal of Biomedical and Health Informatics},
-  year={2024},
-  publisher={IEEE}
-}
-```
 
 ## License
 
