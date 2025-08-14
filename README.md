@@ -319,9 +319,3 @@ The JBHI-Cleaned dataset contains 630 full-spine anteroposterior radiographs fro
 - **Quality assurance**: Cases with disagreement >5° underwent consensus review
 - **Multi-center validation**: Ensures robust generalization across clinical settings
 
-## Contact
-
-For questions and support:
-- Primary contact: Prof. Teng Zhang (tgzhang@hku.hk)
-- Issues: [GitHub Issues](https://github.com/[username]/JBHI-Cleaned/issues)
-- Institutional Review Board approval: UW15-596
